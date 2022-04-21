@@ -1,2 +1,2 @@
 include ':burned-calories'
-rootProject.name = "Karoo Burned Calories"
+rootProject.name = "Burned Calories"

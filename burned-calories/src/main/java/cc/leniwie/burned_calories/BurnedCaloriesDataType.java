@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import android.graphics.drawable.Drawable;
 import io.hammerhead.sdk.v0.SdkContext;
 import io.hammerhead.sdk.v0.datatype.Dependency;
 import io.hammerhead.sdk.v0.datatype.SdkDataType;
@@ -50,6 +51,14 @@ public class BurnedCaloriesDataType extends SdkDataType {
     @Override
     public String getDescription() {
         return "Shows burned calories during ride";
+    }
+
+    @NotNull
+    @Override
+    public List<Drawable> displayIcons() {
+        return Arrays.asList(
+            getContext().getDrawable(R.drawable.ic_burned_calories)
+        );        
     }
 
     @NotNull

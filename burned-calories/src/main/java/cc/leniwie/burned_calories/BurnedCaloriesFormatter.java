@@ -24,6 +24,7 @@ public class BurnedCaloriesFormatter extends SdkFormatter {
     @NotNull
     @Override
     public String formatValue(double value) {
-        return String.valueOf(value);
+        int IntValue = (int) value;
+        return String.valueOf(IntValue);
     }
 }

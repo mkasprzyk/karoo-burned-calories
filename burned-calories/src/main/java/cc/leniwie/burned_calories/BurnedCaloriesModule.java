@@ -54,12 +54,6 @@ public class BurnedCaloriesModule extends Module {
         return "0.1";
     }
 
-    @Override
-    public boolean onStart() {
-        Timber.i("Burned Calories received ride start event");
-        return false;
-    }
-
     @NotNull
     @Override
     public List<SdkDataType> provideDataTypes() {
