@@ -1,0 +1,5 @@
+{
+	"name": "Karoo Burned Calories DevContainer",
+	"context": "../",
+	"dockerFile": "../Dockerfile"
+}

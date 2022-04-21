@@ -1,0 +1,23 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion versions.compileSdk
+
+    defaultConfig {
+        applicationId "cc.leniwie.burned_calories"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.compileSdk
+        versionCode 3
+        versionName "1.0.2"
+    }
+    
+}
+
+dependencies {
+
+    implementation "io.hammerhead:karoo-sdk:${versions.libraryVersion}"
+
+    // Other dependencies
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+}
