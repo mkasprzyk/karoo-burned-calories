@@ -1,5 +1,6 @@
 {
 	"name": "Karoo Burned Calories DevContainer",
 	"context": "../",
-	"dockerFile": "../Dockerfile"
+	"dockerFile": "../Dockerfile",
+	"build": { "target": "development" }
 }
