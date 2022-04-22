@@ -19,6 +19,7 @@ package cc.leniwie.burned_calories;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.sql.Timestamp;
 
 import io.hammerhead.sdk.v0.SdkContext;
 import io.hammerhead.sdk.v0.KeyValueStore;
@@ -93,22 +94,23 @@ class BurnedCaloriesEquationFemale extends BurnedCaloriesEquation {
 
 
 class BurnedCaloriesTransformer extends SdkTransformer {
-    
+
     SdkContext sdkContext = getContext();
     KeyValueStore kvStore = sdkContext.getKeyValueStore();
 
-    private static final String TAG = "BurnedCaloriesTransformer";
-
-    private String burnedCaloriesKey = kvStore.getString(sdkContext.getResources().getString(R.string.burnedCaloriesKey));
+    private String burnedCaloriesKey = sdkContext.getResources().getString(R.string.burnedCaloriesKey);
     private String gender = kvStore.getString(sdkContext.getResources().getString(R.string.genderKey));
     private Double weight = kvStore.getDouble(sdkContext.getResources().getString(R.string.weightKey));
     private Double age = kvStore.getDouble(sdkContext.getResources().getString(R.string.ageKey));
+
+    private double previousTimestamp = (double) System.nanoTime();
 
     public BurnedCaloriesTransformer(@NotNull SdkContext context) {
         super(context);
     }
 
     public boolean resetBurnedCalories() {
+        kvStore.putDouble("updateDrift", 0.0);
         return sdkContext.getKeyValueStore().putDouble(this.burnedCaloriesKey, 0.0);
     }
 
@@ -124,6 +126,11 @@ class BurnedCaloriesTransformer extends SdkTransformer {
 
     @Override
     public double onDependencyChange(long timeStamp, @NotNull Map<Dependency, Double> dependencies) {
+        double currentTimestamp = (double) System.nanoTime();
+        double updateDrift = (currentTimestamp - previousTimestamp) / 1000000000;
+        previousTimestamp = currentTimestamp;
+        kvStore.putDouble("updateDrift", updateDrift);
+
         Double heartRate = dependencies.get(Dependency.HEART_RATE);
         if (heartRate == null || heartRate == MISSING_VALUE) {
             return MISSING_VALUE;

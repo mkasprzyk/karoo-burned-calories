@@ -1,5 +1,6 @@
 package cc.leniwie.burned_calories;
 
+import android.os.Handler;
 import android.os.Bundle;
 import java.util.Arrays;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
   private static final String[] genders = {"Male", "Female"};
 
   private EditText editAge, editWeight;
+  private EditText updateDrift;
   private Spinner spinner;
 
   @Override
@@ -36,7 +38,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     editAge = (EditText) findViewById(R.id.editAge);
     editWeight = (EditText) findViewById(R.id.editWeight);
-
+    updateDrift = (EditText) findViewById(R.id.updateDrift);
+    updateDrift.setText(kvStore.getDouble("updateDrift").toString());
+    
     spinner = (Spinner) findViewById(R.id.spinner);
     ArrayAdapter<String>adapter = new ArrayAdapter<String>(MainActivity.this,
       android.R.layout.simple_spinner_item, genders);
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
           }
       }
     });
+  
   }
 
   @Override

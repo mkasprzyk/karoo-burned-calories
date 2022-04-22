@@ -66,6 +66,25 @@
 
         </TableRow>
 
+        <TableRow>
+
+            <TextView
+                android:text="Update Drift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1" />
+
+            <EditText
+                android:id="@+id/updateDrift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_column="2"
+                android:inputType="numberDecimal"
+                android:maxLines="1" />
+
+        </TableRow>
+
     </TableLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
