@@ -65,7 +65,6 @@ public class BurnedCaloriesDataType extends SdkDataType {
     @Override
     public List<Dependency> getDependencies() {
         return Arrays.asList(
-            Dependency.INTERVAL,
             Dependency.HEART_RATE
         );
     }
