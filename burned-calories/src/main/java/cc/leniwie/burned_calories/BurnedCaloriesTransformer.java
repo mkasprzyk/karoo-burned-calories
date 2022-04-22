@@ -19,7 +19,6 @@ package cc.leniwie.burned_calories;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.lang.String;
 
 import io.hammerhead.sdk.v0.SdkContext;
 import io.hammerhead.sdk.v0.KeyValueStore;
@@ -30,11 +29,11 @@ import androidx.core.content.res.ResourcesCompat;
 
 
 interface BurnedCaloriesEquation {
-    Double a = 1/4.184;
-    Double b = 0.0;
-    Double c = 0.0;
-    Double d = 0.0;
-    Double e = 0.0;
+    Double kjToKcalRatio = 1/4.184;
+    Double heartRateFactor = 0.0;
+    Double weightFactor = 0.0;
+    Double genderFactor = 0.0;
+    Double ageFactor = 0.0;
 
     Double weight = 75.0;
     Double age = 30.0;
@@ -43,36 +42,38 @@ interface BurnedCaloriesEquation {
         return kg * 2.20462;
     }
 
-    default double kj_to_kcal(Double kj) {
-        return kj * 0.9;
-    }
-
     public double formula(Double heartRate);
 }
 
-class BurnedCaloriesEquationMen implements BurnedCaloriesEquation {
-    private Double b = 0.6309;
-    private Double c = 0.09036;
-    private Double d = 0.2017;
-    private Double e = 55.0969;
+class BurnedCaloriesEquationMale implements BurnedCaloriesEquation {
+    private Double heartRateFactor = 0.6309;
+    private Double weightFactor = 0.09036;
+    private Double genderFactor = 55.0969;
+    private Double ageFactor = 0.2017;
 
     public double formula(Double heartRate) {
-        return this.kj_to_kcal(
-            (this.a * (this.b * heartRate + this.c * this.kg_to_lb(this.weight) + this.d * this.age - this.e)) / 60
-        );
+        return this.kjToKcalRatio * (
+            this.heartRateFactor * heartRate +
+            this.weightFactor * this.kg_to_lb(this.weight) +
+            this.ageFactor * this.age -
+            this.genderFactor
+        ) / 60;
     }
 }
 
-class BurnedCaloriesEquationWomen implements BurnedCaloriesEquation {
-    private Double b = 0.4472;
-    private Double c = 0.05741;
-    private Double d = 0.074;
-    private Double e = 20.4022;
+class BurnedCaloriesEquationFemale implements BurnedCaloriesEquation {
+    private Double heartRateFactor = 0.4472;
+    private Double weightFactor = 0.05741;
+    private Double genderFactor = 20.4022;
+    private Double ageFactor = 0.074;
 
     public double formula(Double heartRate) {
-        return this.kj_to_kcal(
-            (this.a * (this.b * heartRate - this.c * this.kg_to_lb(this.weight) + this.d * this.age - this.e)) / 60
-        );
+        return this.kjToKcalRatio * (
+            this.heartRateFactor * heartRate -
+            this.weightFactor * this.kg_to_lb(this.weight) +
+            this.ageFactor * this.age -
+            this.genderFactor
+        ) / 60;
     }
 }
 
@@ -111,7 +112,7 @@ class BurnedCaloriesTransformer extends SdkTransformer {
         }
         KeyValueStore kvStore = getContext().getKeyValueStore();
         Double burnedCalories = kvStore.getDouble(this.burnedCaloriesKey);
-        burnedCalories += calculate(new BurnedCaloriesEquationMen(), heartRate);
+        burnedCalories += calculate(new BurnedCaloriesEquationMale(), heartRate);
         kvStore.putDouble(this.burnedCaloriesKey, burnedCalories);
         return burnedCalories;
     }
