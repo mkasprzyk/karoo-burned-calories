@@ -16,6 +16,9 @@ import android.view.View;
 import android.text.TextWatcher;
 import android.text.Editable;
 
+import timber.log.Timber;
+
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
   private static final String[] genders = {"Male", "Female"};
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
   @Override
   public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+    Timber.d("Selected gender: " + genders[position]);
     KeyValueStore kvStore = SdkContext.buildSdkContext(this).getKeyValueStore();
     kvStore.putString(getString(R.string.genderKey), genders[position]);
   }

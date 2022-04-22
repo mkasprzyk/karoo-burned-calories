@@ -26,6 +26,7 @@ import io.hammerhead.sdk.v0.datatype.Dependency;
 import io.hammerhead.sdk.v0.datatype.transformer.SdkTransformer;
 
 import androidx.core.content.res.ResourcesCompat;
+import timber.log.Timber;
 
 
 class BurnedCaloriesEquation {
@@ -95,6 +96,8 @@ class BurnedCaloriesTransformer extends SdkTransformer {
     
     SdkContext sdkContext = getContext();
     KeyValueStore kvStore = sdkContext.getKeyValueStore();
+
+    private static final String TAG = "BurnedCaloriesTransformer";
 
     private String burnedCaloriesKey = kvStore.getString(sdkContext.getResources().getString(R.string.burnedCaloriesKey));
     private String gender = kvStore.getString(sdkContext.getResources().getString(R.string.genderKey));
