@@ -28,32 +28,41 @@ import io.hammerhead.sdk.v0.datatype.transformer.SdkTransformer;
 import androidx.core.content.res.ResourcesCompat;
 
 
-interface BurnedCaloriesEquation {
+class BurnedCaloriesEquation {
     Double kjToKcalRatio = 1/4.184;
     Double heartRateFactor = 0.0;
     Double weightFactor = 0.0;
     Double genderFactor = 0.0;
     Double ageFactor = 0.0;
 
-    Double weight = 75.0;
-    Double age = 30.0;
+    public Double heartRate;
+    public Double weight;
+    public Double age;
 
-    default double kg_to_lb(Double kg) {
-        return kg * 2.20462;
+    public BurnedCaloriesEquation(Double heartRate, Double weight, Double age) {
+        this.heartRate = heartRate;
+        this.weight = weight;
+        this.age = age;
     }
 
-    public double formula(Double heartRate);
+    public double kg_to_lb(Double kg) {
+        return kg * 2.20462;
+    }
 }
 
-class BurnedCaloriesEquationMale implements BurnedCaloriesEquation {
+class BurnedCaloriesEquationMale extends BurnedCaloriesEquation {
     private Double heartRateFactor = 0.6309;
     private Double weightFactor = 0.09036;
     private Double genderFactor = 55.0969;
     private Double ageFactor = 0.2017;
 
-    public double formula(Double heartRate) {
+    public BurnedCaloriesEquationMale(Double heartRate, Double weight, Double age) {
+        super(heartRate, weight, age);
+    }
+
+    public double calculate() {
         return this.kjToKcalRatio * (
-            this.heartRateFactor * heartRate +
+            this.heartRateFactor * this.heartRate +
             this.weightFactor * this.kg_to_lb(this.weight) +
             this.ageFactor * this.age -
             this.genderFactor
@@ -61,15 +70,19 @@ class BurnedCaloriesEquationMale implements BurnedCaloriesEquation {
     }
 }
 
-class BurnedCaloriesEquationFemale implements BurnedCaloriesEquation {
+class BurnedCaloriesEquationFemale extends BurnedCaloriesEquation {
     private Double heartRateFactor = 0.4472;
     private Double weightFactor = 0.05741;
     private Double genderFactor = 20.4022;
     private Double ageFactor = 0.074;
 
-    public double formula(Double heartRate) {
+    public BurnedCaloriesEquationFemale(Double heartRate, Double weight, Double age) {
+        super(heartRate, weight, age);
+    }
+
+    public double calculate() {
         return this.kjToKcalRatio * (
-            this.heartRateFactor * heartRate -
+            this.heartRateFactor * this.heartRate -
             this.weightFactor * this.kg_to_lb(this.weight) +
             this.ageFactor * this.age -
             this.genderFactor
@@ -79,18 +92,20 @@ class BurnedCaloriesEquationFemale implements BurnedCaloriesEquation {
 
 
 class BurnedCaloriesTransformer extends SdkTransformer {
-    private String burnedCaloriesKey = "burnedCalories";
+    
+    SdkContext sdkContext = getContext();
+    KeyValueStore kvStore = sdkContext.getKeyValueStore();
+
+    private String burnedCaloriesKey = kvStore.getString(sdkContext.getResources().getString(R.string.burnedCaloriesKey));
+    private String gender = kvStore.getString(sdkContext.getResources().getString(R.string.genderKey));
+    private Double weight = kvStore.getDouble(sdkContext.getResources().getString(R.string.weightKey));
+    private Double age = kvStore.getDouble(sdkContext.getResources().getString(R.string.ageKey));
 
     public BurnedCaloriesTransformer(@NotNull SdkContext context) {
         super(context);
     }
 
-    public Double calculate(BurnedCaloriesEquation equation, Double heartRate) {
-        return equation.formula(heartRate);
-    }
-
     public boolean resetBurnedCalories() {
-        SdkContext sdkContext = getContext();
         return sdkContext.getKeyValueStore().putDouble(this.burnedCaloriesKey, 0.0);
     }
 
@@ -110,9 +125,18 @@ class BurnedCaloriesTransformer extends SdkTransformer {
         if (heartRate == null || heartRate == MISSING_VALUE) {
             return MISSING_VALUE;
         }
-        KeyValueStore kvStore = getContext().getKeyValueStore();
+
         Double burnedCalories = kvStore.getDouble(this.burnedCaloriesKey);
-        burnedCalories += calculate(new BurnedCaloriesEquationMale(), heartRate);
+
+        switch(gender) {
+        case "Male":
+            burnedCalories += new BurnedCaloriesEquationMale(heartRate, weight, age).calculate();
+            break;
+        case "Female":
+            burnedCalories += new BurnedCaloriesEquationFemale(heartRate, weight, age).calculate();
+            break;
+        }
+
         kvStore.putDouble(this.burnedCaloriesKey, burnedCalories);
         return burnedCalories;
     }
